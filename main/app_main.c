@@ -41,6 +41,8 @@ static void i2c_master_init()
 {
    i2c_port_t i2c_master_port = I2C_MASTER_NUM;
    i2c_config_t conf;
+   conf.clk_flags = 0;
+
    conf.mode = I2C_MODE_MASTER;
    conf.sda_io_num = (gpio_num_t) I2C_MASTER_SDA_IO;
    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
@@ -53,6 +55,7 @@ static void i2c_master_init()
                              I2C_MASTER_TX_BUF_DISABLE, 0) != ESP_OK)
    {
        ESP_LOGE(TAG, "Failed to initialize I2C driver!\r\n");
+
    }
 }
 
@@ -83,11 +86,14 @@ void app_main()
     i2c_master_init();
     if ( hdc1080_init(I2C_MASTER_NUM) != ESP_OK)
     {
+        printf("Erro print: %i\n", hdc1080_init(I2C_MASTER_NUM));
         ESP_LOGE(TAG, "Failed to initialize HDC1080 sensor!\r\n");
     }
 
     while(1) {
 	// Get the temperature and humidity
+
+    //  printf("Erro read: %i\n", hdc1080_read_temperature(I2C_MASTER_NUM, &temperature, &humidity));
         if ( hdc1080_read_temperature(I2C_MASTER_NUM, &temperature, &humidity) == ESP_OK)
         {
             printf("Current temperature = %.2f C, Relative Humidity = %.2f %%\n", 
