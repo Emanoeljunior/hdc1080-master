@@ -12,19 +12,10 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
-
-#include "hdc1080.h"
-
-/* Can use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
-   or you can edit the following line and set a number here.
-*/
-#define BLINK_GPIO CONFIG_BLINK_GPIO
+#include "hdc1080.h"                                          /*Biblioteca do sensor*/
 
 #define _I2C_NUMBER(num) I2C_NUM_##num
 #define I2C_NUMBER(num) _I2C_NUMBER(num)
-
-#define TIME_ZONE (+8)   //Singapore Time
-
 #define I2C_MASTER_SCL_IO CONFIG_I2C_MASTER_SCL               /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO CONFIG_I2C_MASTER_SDA               /*!< gpio number for I2C master data  */
 #define I2C_MASTER_NUM I2C_NUMBER(CONFIG_I2C_MASTER_PORT_NUM) /*!< I2C port number for master dev */
@@ -55,7 +46,6 @@ static void i2c_master_init()
                              I2C_MASTER_TX_BUF_DISABLE, 0) != ESP_OK)
    {
        ESP_LOGE(TAG, "Failed to initialize I2C driver!\r\n");
-
    }
 }
 
@@ -67,21 +57,9 @@ static void i2c_master_deinit(void)
 }
 #endif
 
-
-
 void app_main()
 {
     float temperature, humidity;
-
-    /* Configure the IOMUX register for pad BLINK_GPIO (some pads are
-       muxed to GPIO on reset already, but some default to other
-       functions and need to be switched to GPIO. Consult the
-       Technical Reference for a list of pads and their default
-       functions.)
-    */
-    gpio_pad_select_gpio(BLINK_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
 
     i2c_master_init();
     if ( hdc1080_init(I2C_MASTER_NUM) != ESP_OK)
@@ -92,20 +70,11 @@ void app_main()
 
     while(1) {
 	// Get the temperature and humidity
-
     //  printf("Erro read: %i\n", hdc1080_read_temperature(I2C_MASTER_NUM, &temperature, &humidity));
         if ( hdc1080_read_temperature(I2C_MASTER_NUM, &temperature, &humidity) == ESP_OK)
         {
             printf("Current temperature = %.2f C, Relative Humidity = %.2f %%\n", 
                     temperature, humidity);
         }
-        /* Blink off (output low) */
-	printf("Turning off the LED\n");
-        gpio_set_level(BLINK_GPIO, 0);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        /* Blink on (output high) */
-	printf("Turning on the LED\n");
-        gpio_set_level(BLINK_GPIO, 1);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
