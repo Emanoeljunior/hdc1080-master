@@ -49,8 +49,6 @@ esp_err_t hdc1080_init(i2c_port_t i2cnum)
     i2c_cmd_link_delete(cmd);
    //  printf("%i\n", ret);
 
-
-
     return ret; 
 }
 
